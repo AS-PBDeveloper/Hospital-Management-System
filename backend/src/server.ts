@@ -13,6 +13,7 @@ import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { connectDB } from "./config/db";
 import { auth } from "./lib/auth";
 import userRouter from "./routes/user";
+import activityLogRouter from "./routes/activity";
 
 dotenv.config();
 
@@ -54,6 +55,12 @@ app.get("/api/me", async (req, res) => {
   return res.json(session);
 });
 app.use("/api/users", userRouter);
+app.use("/api/activity-logs", activityLogRouter);
+// app.use("/api/notifications", notificationRouter);
+// app.use("/api/lab-results", labResultsRouter);
+// app.use("/api/invoices", invoiceRouter);
+
+// inngest API route
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: any) => {

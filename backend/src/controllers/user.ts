@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import type { Request, Response } from "express";
+import { logActivity } from "../lib/activity";
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
@@ -74,11 +75,11 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     // activity log
-    // await logActivity(
-    //   (req as any).user.id, // you can also use name but id is more reliable
-    //   "Updated User",
-    //   `User updated: ${id}`,
-    // );
+    await logActivity(
+      (req as any).user.id,
+      "Updated User",
+      `User updated: ${id}`,
+    );
 
     res.json({
       message: "User updated successfully",
