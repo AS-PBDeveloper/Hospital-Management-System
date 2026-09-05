@@ -17,4 +17,44 @@ export const auth = betterAuth({
       adminRole: ["admin", "superadmin"],
     }),
   ],
+  user: {
+    additionalFields: {
+      specialization: {
+        type: "string",
+        required: false, // Only for doctors
+      },
+      department: {
+        type: "string",
+        required: false,
+      },
+      gender: {
+        type: "string",
+        required: false,
+      },
+      bloodgroup: {
+        type: "string",
+        required: false,
+      },
+      medicalHistory: {
+        type: "string",
+        required: false,
+      },
+      age: {
+        type: "string",
+        required: false,
+      },
+      status: {
+        type: "string",
+        required: false,
+        defaultValue: "active",
+      },
+      prescriptions: {
+        type: "string[]",
+        required: false,
+      },
+      appointments: {
+        type: "string[]",
+      },
+    },
+  },
 });
