@@ -9,16 +9,23 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import { serve } from "inngest/express";
 
 import { connectDB } from "./config/db";
 import { auth } from "./lib/auth";
 import userRouter from "./routes/user";
 import activityLogRouter from "./routes/activity";
+import { inngest } from "./inngest/client";
+import { admitPatient } from "./inngest/functions";
 
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
+const inngestHandler = serve({
+  client: inngest,
+  functions: [admitPatient],
+});
 
 // Middleware
 app.use(
@@ -60,7 +67,8 @@ app.use("/api/activity-logs", activityLogRouter);
 // app.use("/api/lab-results", labResultsRouter);
 // app.use("/api/invoices", invoiceRouter);
 
-// inngest API route
+// Inngest API route. Keep `/api/ingest` as a compatibility alias for manual sync URLs.
+app.use("/api/inngest", inngestHandler);
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: any) => {
