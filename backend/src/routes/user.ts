@@ -12,8 +12,6 @@ import {
 import { requireAuth } from "../middleware/auth";
 import { checkRole } from "../middleware/checkRole";
 
-userRouter.get("/:id", requireAuth, getUserById);
-
 userRouter.get(
   "/",
   requireAuth,

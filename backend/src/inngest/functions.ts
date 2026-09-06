@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { inngest } from "./client";
 import { NonRetriableError } from "inngest";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { notifyUsers } from "./notifyUsers";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY!);
 
@@ -114,20 +115,18 @@ export const admitPatient = inngest.createFunction(
       });
     });
 
-    // later we will notify doctor and nurse
     // create notification
     // for testing copy doctor and nurse id
-
-    // await step.run("send-notification", async () => {
-    //   await notifyUsers(
-    //     aiAssignment.doctorId,
-    //     aiAssignment.nurseId,
-    //     "Patient Assigned",
-    //     `You have been assigned to a new patient: ${updatedPatient?.name}`,
-    //     `/patient/${patientId}`,
-    //     "assignment",
-    //   );
-    // });
+    await step.run("send-notification", async () => {
+      await notifyUsers(
+        aiAssignment.doctorId,
+        aiAssignment.nurseId,
+        "Patient Assigned",
+        `You have been assigned to a new patient: ${updatedPatient?.name}`,
+        `/patient/${patientId}`,
+        "assignment",
+      );
+    });
     return { success: true, aiAssignment, updatedPatient };
   },
 );

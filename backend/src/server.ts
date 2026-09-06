@@ -17,6 +17,7 @@ import userRouter from "./routes/user";
 import activityLogRouter from "./routes/activity";
 import { inngest } from "./inngest/client";
 import { admitPatient } from "./inngest/functions";
+import notificationRouter from "./routes/notification";
 
 dotenv.config();
 
@@ -63,7 +64,7 @@ app.get("/api/me", async (req, res) => {
 });
 app.use("/api/users", userRouter);
 app.use("/api/activity-logs", activityLogRouter);
-// app.use("/api/notifications", notificationRouter);
+app.use("/api/notifications", notificationRouter);
 // app.use("/api/lab-results", labResultsRouter);
 // app.use("/api/invoices", invoiceRouter);
 
