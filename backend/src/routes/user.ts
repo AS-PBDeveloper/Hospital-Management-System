@@ -6,7 +6,7 @@ import {
   fetchAllUsers,
   getUserById,
   updateUser,
-  //   admitPatient,
+  admitPatient,
   //   getPolarPortalLink,
 } from "../controllers/user";
 import { requireAuth } from "../middleware/auth";
@@ -34,7 +34,7 @@ userRouter.post(
   "/:id/admit",
   requireAuth,
   checkRole(["admin", "doctor", "nurse"]),
-  //   admitPatient,
+  admitPatient,
 );
 
 // userRouter.get("/polar-portal/:userId", requireAuth, getPolarPortalLink);

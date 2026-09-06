@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import type { Request, Response } from "express";
 import { logActivity } from "../lib/activity";
+import { inngest } from "../inngest/client";
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
@@ -140,5 +141,28 @@ export const fetchAllUsers = async (req: Request, res: Response) => {
 };
 
 //admit
+export const admitPatient = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { admissionReason } = req.body;
+
+    // trigger inngest
+    await inngest.send({
+      name: "patient/admitted",
+      data: { patientId: id, admissionReason },
+    });
+    // log who did these
+    await logActivity(
+      (req as any).user.id,
+      "Admitted Patient",
+      `Admitted patient ${id}`,
+    );
+    // when you don't want your api routes or functions to load forever make sure to finish with a response, otherwise the client will keep waiting for a response until it times out
+    res.json({ message: "Patient admission requested successfully" });
+  } catch (error) {
+    console.error("Error admitting patient:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // polar portal
