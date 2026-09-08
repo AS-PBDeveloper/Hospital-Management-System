@@ -16,9 +16,14 @@ import { auth } from "./lib/auth";
 import userRouter from "./routes/user";
 import activityLogRouter from "./routes/activity";
 import { inngest } from "./inngest/client";
-import { admitPatient, analyzeXRayJob } from "./inngest/functions";
+import {
+  admitPatient,
+  analyzeXRayJob,
+  addChargeToInvoice,
+} from "./inngest/functions";
 import notificationRouter from "./routes/notification";
 import labResultsRouter from "./routes/labResults";
+import invoiceRouter from "./routes/invoice";
 
 dotenv.config();
 
@@ -26,7 +31,7 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 const inngestHandler = serve({
   client: inngest,
-  functions: [admitPatient, analyzeXRayJob],
+  functions: [admitPatient, analyzeXRayJob, addChargeToInvoice],
 });
 
 // Middleware
@@ -67,7 +72,7 @@ app.use("/api/users", userRouter);
 app.use("/api/activity-logs", activityLogRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/lab-results", labResultsRouter);
-// app.use("/api/invoices", invoiceRouter);
+app.use("/api/invoices", invoiceRouter);
 
 // Inngest API route. Keep `/api/ingest` as a compatibility alias for manual sync URLs.
 app.use("/api/inngest", inngestHandler);

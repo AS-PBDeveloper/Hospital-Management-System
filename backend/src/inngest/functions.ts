@@ -4,6 +4,7 @@ import { NonRetriableError } from "inngest";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { notifyUsers } from "./notifyUsers";
 import labResults from "../models/labResults";
+import Invoice from "../models/invoice";
 
 type LabResultRecord = {
   patient: mongoose.Types.ObjectId;
@@ -223,5 +224,42 @@ export const analyzeXRayJob = inngest.createFunction(
       );
     });
     // later socket.io
+  },
+);
+
+export const addChargeToInvoice = inngest.createFunction(
+  {
+    id: "add-medical-charge",
+    triggers: [{ event: "billing/charge.added" }],
+  },
+  async ({ event, step }) => {
+    const { patientId, description, priceInCents } = event.data;
+
+    if (!patientId || typeof priceInCents !== "number") {
+      throw new NonRetriableError("Missing required charge information.");
+    }
+
+    let inv = await Invoice.findOne({ patientId, status: "draft" });
+
+    await step.run("create invoice", async () => {
+      // 1. Find the active draft invoice or create a new one
+      if (!inv) {
+        inv = new Invoice({ patientId, items: [], totalAmount: 0 });
+      }
+
+      // 2. Add the itemized charge
+      inv.items.push({
+        description,
+        quantity: 1,
+        unitPrice: priceInCents,
+        totalPrice: priceInCents,
+      });
+
+      // 3. Recalculate Total
+      inv.totalAmount += priceInCents;
+      await inv.save();
+    });
+
+    return { success: true, invoiceId: inv?._id?.toString() };
   },
 );
