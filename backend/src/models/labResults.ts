@@ -13,7 +13,7 @@ export interface ILabResult extends Document {
   updatedAt: Date;
 }
 
-const LabResultSchema: Schema = new Schema(
+const LabResultSchema = new Schema<ILabResult>(
   {
     patient: { type: Schema.Types.ObjectId, ref: "user" },
     uploadedBy: { type: String, required: true },
