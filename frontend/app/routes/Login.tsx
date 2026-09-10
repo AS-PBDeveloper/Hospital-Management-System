@@ -3,13 +3,16 @@ import { Activity, AlertCircle, ChevronRight, Lock, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { CustomInput } from "@/components/global/CustomInput";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { loginSchema } from "@/components/auth/login.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import Loader from "@/components/global/Loader";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,15 +27,47 @@ const Login = () => {
   const [globalError, setGlobalError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // Hook for redirection
-  // const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", rememberMe: false },
   });
 
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <Loader label="Loading..." />
+      </div>
+    );
+  }
+
+  // Redirect if logged in
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const onSubmit = async (data: LoginFormValues) => {
-    console.log(data);
+    setGlobalError("");
+    setIsLoading(true);
+    await authClient.signIn.email(
+      {
+        email: data.email,
+        password: data.password,
+        rememberMe: data.rememberMe,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Login Successful!");
+          navigate("/dashboard"); // 👈 Redirect user after login
+        },
+        onError: (ctx) => {
+          // ctx.error.message contains the server response (e.g. "Invalid password")
+          setGlobalError(ctx.error.message);
+        },
+      },
+    );
+    setIsLoading(false);
   };
 
   return (
