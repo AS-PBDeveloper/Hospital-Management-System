@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { serve } from "inngest/express";
+import { createServer } from "http";
 
 import { connectDB } from "./config/db";
 import { auth } from "./lib/auth";
@@ -24,11 +25,19 @@ import {
 import notificationRouter from "./routes/notification";
 import labResultsRouter from "./routes/labResults";
 import invoiceRouter from "./routes/invoice";
+import { getIO, initSocket } from "./lib/socket";
 
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
+const httpServer = createServer(app);
+
+initSocket(httpServer);
+
+// Make 'io' accessible in Express req.app.get("io") for backwards compatibility
+app.set("io", getIO());
+
 const inngestHandler = serve({
   client: inngest,
   functions: [admitPatient, analyzeXRayJob, addChargeToInvoice],
@@ -87,15 +96,17 @@ app.use((err: any, req: Request, res: Response, next: any) => {
   });
 });
 
+connectDB();
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    httpServer.listen(PORT, () => {
+      console.log(
+        `🚀 Server + Socket.IO running in ${process.env.NODE_ENV} mode on port ${PORT}`,
+      );
     });
   })
   .catch((error) => {
     console.error(
-      `❌ Error connecting to the database: ${(error as Error).message}`,
+      `Failed to connect to the database: ${(error as Error).message}`,
     );
-    process.exit(1); // Exit process with failure
   });

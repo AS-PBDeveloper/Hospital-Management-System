@@ -1,8 +1,8 @@
-import { getUsers } from "@/lib/api";
+import { createActityLog, getUsers } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import type { Role, User, UserStatus } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import Loader from "@/components/global/Loader";
 import {
   Card,
@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import GlobalSearch from "@/components/global/GlobalSearch";
 import CustomPagination from "@/components/global/CustomPagination";
 import CreateUserModal from "./CreateUserModal";
+import { socket } from "@/lib/socket";
 
 interface UserManagementProps {
   role: Role;
@@ -57,6 +58,30 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
 
   const users = data?.res || [];
   const pagination = data?.pagination;
+
+  // socket.io listener for real-time updates
+  useEffect(() => {
+    if (!socket.connected) socket.connect();
+
+    const handleUpdate = () => refetch();
+
+    socket.on("notify_user_updated", handleUpdate);
+    socket.on("notify_user_created", handleUpdate);
+
+    return () => {
+      socket.off("notify_user_updated", handleUpdate);
+      socket.off("notify_user_created", handleUpdate);
+    };
+  }, [refetch]);
+
+  // activity mutation
+  const activityMutation = useMutation({
+    mutationFn: createActityLog,
+    onError: (error) => {
+      console.log("Activity Log Error:", error);
+      // toast.error(error.message || "Failed to create activity log");
+    },
+  });
 
   if (isLoading) {
     return (
