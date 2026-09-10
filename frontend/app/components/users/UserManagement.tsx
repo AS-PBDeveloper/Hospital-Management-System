@@ -23,6 +23,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { STATUS_CONFIG } from "./statusBadge";
+import { toast } from "sonner";
+import GlobalSearch from "@/components/global/GlobalSearch";
+import CustomPagination from "@/components/global/CustomPagination";
+import CreateUserModal from "./CreateUserModal";
 
 interface UserManagementProps {
   role: Role;
@@ -77,7 +81,62 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
     user?.name.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // bun users
+  // ban users
+  const banUser = async (banned: boolean, userId: string) => {
+    try {
+      setLoading(true);
+      if (banned) {
+        await authClient.admin.unbanUser({ userId });
+        toast.success("User has been unbanned successfully.");
+        refetch();
+        activityMutation.mutate({
+          userId: session?.user.id!,
+          action: "ban",
+          details: `Unbanned user with ID: ${userId}`,
+        });
+        setLoading(false);
+      } else {
+        await authClient.admin.banUser({ userId });
+        toast.success("User has been banned successfully.");
+        refetch();
+        setLoading(false);
+        activityMutation.mutate({
+          userId: session?.user.id!,
+          action: "ban",
+          details: `Banned user with ID: ${userId}`,
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error banning/unbanning user:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
+
+  // delete
+  const deleteUser = async (userId: string) => {
+    try {
+      setLoading(true);
+      const { error } = await authClient.admin.removeUser({ userId });
+      if (error) {
+        toast.error("Failed to delete user.");
+        setLoading(false);
+      } else {
+        toast.success("User has been deleted successfully.");
+        refetch();
+        setLoading(false);
+        activityMutation.mutate({
+          userId: session?.user.id!,
+          action: "delete",
+          details: `Deleted user with ID: ${userId}`,
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error deleting user:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -96,12 +155,12 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
             <CardDescription>{description}</CardDescription>
           </div>
           <div className="flex gap-2">
-            {/* <GlobalSearch
+            <GlobalSearch
               search={search}
               setSearch={setSearch}
               title={`Search ${title}`}
             />
-            <CreateUserModal role={role} /> */}
+            <CreateUserModal role={role} />
           </div>
         </CardHeader>
         <CardContent>
@@ -210,15 +269,15 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
                       </TableCell>
                       <TableCell className="float-right">
                         <div className="flex justify-end gap-2">
-                          {/* <CreateUserModal
+                          <CreateUserModal
                             role={role}
                             user={user}
                             loading={loading}
-                          /> */}
+                          />
                           {session?.user.role === "admin" && (
                             <>
                               <Button
-                                // onClick={() => banUser(user?.banned, user._id)}
+                                onClick={() => banUser(user?.banned, user._id)}
                                 variant="outline"
                                 size="sm"
                                 disabled={loading}
@@ -228,7 +287,7 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
                               <Button
                                 variant="destructive"
                                 size="sm"
-                                // onClick={() => deleteUser(user._id)}
+                                onClick={() => deleteUser(user._id)}
                                 disabled={loading}
                               >
                                 Delete
@@ -243,12 +302,12 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
               </TableBody>
             </Table>
             {/* pagination */}
-            {/* <CustomPagination
+            <CustomPagination
               loading={isLoading}
               totalPages={pagination?.totalPages || 0}
               currentPage={pagination?.currentPage || 0}
               setPage={setPage}
-            /> */}
+            />
           </div>
         </CardContent>
       </Card>
