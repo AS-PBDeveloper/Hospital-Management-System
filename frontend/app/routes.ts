@@ -15,7 +15,7 @@ export default [
     route("doctors", "routes/protected/Doctors.tsx"),
     route("nurses", "routes/protected/Nurses.tsx"),
     route("patients", "routes/protected/Patients.tsx"),
-    // route("activities-log", "routes/protected/ActivitiesLog.tsx"),
+    route("activities-log", "routes/protected/ActivitiesLog.tsx"),
     // route("profile/:id", "routes/protected/Profile.tsx"),
     // route("financial-history", "routes/protected/FinancialHistory.tsx"),
   ]),
