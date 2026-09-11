@@ -179,7 +179,7 @@ const Profile = () => {
                   </div>
                   {invoice && (
                     <span className="text-xl font-black">
-                      ${(invoice.totalAmount / 100).toFixed(2)}
+                      ₹{(invoice.totalAmount / 100).toFixed(2)}
                     </span>
                   )}
                 </div>
@@ -200,7 +200,7 @@ const Profile = () => {
                             className="flex justify-between text-xs text-slate-400"
                           >
                             <span>{item.description}</span>
-                            <span>${(item.totalPrice / 100).toFixed(2)}</span>
+                            <span>₹{(item.totalPrice / 100).toFixed(2)}</span>
                           </div>
                         ))}
                       {invoice.status === "paid" ? (
@@ -263,7 +263,7 @@ const Profile = () => {
                           </div>
                           <div>
                             <p className="text-sm font-bold">
-                              ${(pastInv.totalAmount / 100).toFixed(2)}
+                              ₹{(pastInv.totalAmount / 100).toFixed(2)}
                             </p>
                             <p className="text-[10px] text-slate-500 uppercase tracking-wide">
                               Paid on{" "}

@@ -40,7 +40,7 @@ export const createLabResult = async (req: Request, res: Response) => {
         data: {
           patientId: newLabResult.patient,
           description: `Radiology: ${newLabResult.bodyPart} X-Ray Analysis`,
-          priceInCents: 15000, // $150.00
+          priceInCents: 15000, 
         },
       });
       await logActivity(

@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import invoice from "../models/invoice";
 import mongoose from "mongoose";
-// import { auth, polarClient } from "../lib/auth";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth, polarClient } from "../lib/auth";
 
 export const getMyActiveInvoice = async (req: Request, res: Response) => {
   try {
@@ -104,43 +105,43 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     }
 
     // 2. CREATE CHECKOUT USING THE POLAR SDK
-    // const session = await auth.api.getSession({
-    //   headers: fromNodeHeaders(req.headers),
-    // });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
 
-    // if (!session) {
-    //   return res.status(401).json({ message: "Unauthorized" });
-    // }
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-    // const checkout = await polarClient.checkouts.create({
-    //   externalCustomerId: session.user.id, // Link the checkout to the authenticated user
-    //   products: [process.env.POLAR_PRODUCT_ID!],
-    //   prices: {
-    //     [process.env.POLAR_PRODUCT_ID!]: [
-    //       {
-    //         amountType: "fixed",
-    //         priceAmount: userInvoice.totalAmount, // e.g. 15000 = $150.00 (in cents)
-    //         priceCurrency: "usd",
-    //       },
-    //     ],
-    //   },
-    //   metadata: {
-    //     hospitalInvoiceId: userInvoice._id.toString(),
-    //     patientId: userInvoice.patientId,
-    //   },
-    //   // Where to redirect after success
-    //   successUrl: `${process.env.FRONTEND_URL}/profile/${userInvoice.patientId}?checkout_id={CHECKOUT_ID}`,
-    //   returnUrl: `${process.env.FRONTEND_URL}/profile/${userInvoice.patientId}`,
-    // });
+    const checkout = await polarClient.checkouts.create({
+      externalCustomerId: session.user.id, // Link the checkout to the authenticated user
+      products: [process.env.POLAR_PRODUCT_ID!],
+      prices: {
+        [process.env.POLAR_PRODUCT_ID!]: [
+          {
+            amountType: "fixed",
+            priceAmount: userInvoice.totalAmount,
+            priceCurrency: "inr",
+          },
+        ],
+      },
+      metadata: {
+        hospitalInvoiceId: userInvoice._id.toString(),
+        patientId: userInvoice.patientId,
+      },
+      // Where to redirect after success
+      successUrl: `${process.env.FRONTEND_URL}/profile/${userInvoice.patientId}?checkout_id={CHECKOUT_ID}`,
+      returnUrl: `${process.env.FRONTEND_URL}/profile/${userInvoice.patientId}`,
+    });
 
     // Redirect customer to checkout.url
     // 3. Save checkout ID to Mongo
-    // userInvoice.status = "pending_payment";
-    // userInvoice.polarCheckoutId = checkout.id;
-    // await userInvoice.save();
+    userInvoice.status = "pending_payment";
+    userInvoice.polarCheckoutId = checkout.id;
+    await userInvoice.save();
 
-    // // 4. Return the checkout URL to the frontend
-    // res.json({ checkoutUrl: checkout.url });
+    // 4. Return the checkout URL to the frontend
+    res.json({ checkoutUrl: checkout.url });
   } catch (error) {
     console.error("Polar Checkout Error:", error);
     res.status(500).json({ error: "Failed to generate payment link" });
