@@ -28,6 +28,7 @@ import GlobalSearch from "@/components/global/GlobalSearch";
 import CustomPagination from "@/components/global/CustomPagination";
 import CreateUserModal from "./CreateUserModal";
 import { socket } from "@/lib/socket";
+import { DetailsSheet } from "./DetailsSheet";
 
 interface UserManagementProps {
   role: Role;
@@ -168,11 +169,11 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
       {/* startcards */}
       {/* <StatsCards data={users} /> */}
       {/* userDetailsSheet */}
-      {/* <DetailsSheet
+      <DetailsSheet
         user={selectedUser}
         isOpen={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
-      /> */}
+      />
       <Card className="card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>

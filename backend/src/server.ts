@@ -26,6 +26,9 @@ import notificationRouter from "./routes/notification";
 import labResultsRouter from "./routes/labResults";
 import invoiceRouter from "./routes/invoice";
 import { getIO, initSocket } from "./lib/socket";
+import { uploadRouter } from "./lib/uploadthing";
+import { createRouteHandler } from "uploadthing/express";
+import uploadthingRouter from "./routes/uploadthing";
 
 dotenv.config();
 
@@ -85,6 +88,9 @@ app.use("/api/invoices", invoiceRouter);
 
 // Inngest API route. Keep `/api/ingest` as a compatibility alias for manual sync URLs.
 app.use("/api/inngest", inngestHandler);
+
+app.use("/api/uploadthing", createRouteHandler({ router: uploadRouter }));
+app.use("/api/uploadthing/delete", uploadthingRouter);
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: any) => {
