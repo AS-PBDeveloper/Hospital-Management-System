@@ -29,6 +29,7 @@ import CustomPagination from "@/components/global/CustomPagination";
 import CreateUserModal from "./CreateUserModal";
 import { socket } from "@/lib/socket";
 import { DetailsSheet } from "./DetailsSheet";
+import StatsCards from "@/components/global/StatsCards";
 
 interface UserManagementProps {
   role: Role;
@@ -167,7 +168,7 @@ const UserManagement = ({ role, title, description }: UserManagementProps) => {
   return (
     <div className="space-y-6">
       {/* startcards */}
-      {/* <StatsCards data={users} /> */}
+      <StatsCards data={users} />
       {/* userDetailsSheet */}
       <DetailsSheet
         user={selectedUser}
