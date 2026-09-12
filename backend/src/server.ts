@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import express, {
   type Application,
   type Request,
@@ -25,12 +25,11 @@ import {
 import notificationRouter from "./routes/notification";
 import labResultsRouter from "./routes/labResults";
 import invoiceRouter from "./routes/invoice";
+import { handlePolarWebhook } from "./controllers/polarWebhook";
 import { getIO, initSocket } from "./lib/socket";
 import { uploadRouter } from "./lib/uploadthing";
 import { createRouteHandler } from "uploadthing/express";
 import uploadthingRouter from "./routes/uploadthing";
-
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -62,6 +61,13 @@ app.use(
 
 app.use(cookieParser());
 
+app.post(
+  "/api/auth/polar/webhooks",
+  express.raw({ type: "application/json" }),
+  handlePolarWebhook,
+);
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,7 +79,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.all("/api/auth/*splat", toNodeHandler(auth));
 app.get("/api/me", async (req, res) => {
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(req.headers),

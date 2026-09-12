@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
@@ -41,24 +42,29 @@ export const auth = betterAuth({
           returnUrl: `${process.env.FRONTEND_URL}/dashboard`,
         }),
         usage(),
-        // webhooks({
-        //   secret: process.env.POLAR_WEBHOOK_SECRET!,
-        //   onPayload: async ({ data, type }) => {
-        //     // console.log("Received Polar webhook:", type, data);
-        //     if (type === "order.paid" && data.paid) {
-        //       const invoiceId = data.metadata?.hospitalInvoiceId;
-        //       if (invoiceId) {
-        //         // Update your Mongo DB!
-        //         await invoice.findByIdAndUpdate(invoiceId, {
-        //           status: "paid",
-        //         });
-        //         console.log(
-        //           `✅ Invoice ${invoiceId} marked as PAID via Polar!`,
-        //         );
-        //       }
-        //     }
-        //   },
-        // }),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET!,
+          onPayload: async ({ data, type }) => {
+            // console.log("Received Polar webhook:", type, data);
+            if (
+              (type === "order.paid" ||
+                type === "order.created" ||
+                type === "order.updated") &&
+              data.paid
+            ) {
+              const invoiceId = data.metadata?.hospitalInvoiceId;
+              if (invoiceId) {
+                // Update your Mongo DB!
+                await invoice.findByIdAndUpdate(invoiceId, {
+                  status: "paid",
+                });
+                console.log(
+                  `✅ Invoice ${invoiceId} marked as PAID via Polar!`,
+                );
+              }
+            }
+          },
+        }),
       ],
     }),
   ],
