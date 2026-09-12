@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import type { Request, Response } from "express";
 import { logActivity } from "../lib/activity";
 import { inngest } from "../inngest/client";
+import { polarClient } from "../lib/auth";
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
@@ -166,3 +167,18 @@ export const admitPatient = async (req: Request, res: Response) => {
 };
 
 // polar portal
+export const getPolarPortalLink = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    const result = await polarClient.customerSessions.create({
+      externalCustomerId: userId as string, // The internal Polar Customer ID
+    });
+    res.json({ polarPortalUrl: result.customerPortalUrl });
+  } catch (error) {
+    console.error("Error fetching Polar portal link:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

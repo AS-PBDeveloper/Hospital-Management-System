@@ -7,7 +7,7 @@ import {
   getUserById,
   updateUser,
   admitPatient,
-  //   getPolarPortalLink,
+  getPolarPortalLink,
 } from "../controllers/user";
 import { requireAuth } from "../middleware/auth";
 import { checkRole } from "../middleware/checkRole";
@@ -35,7 +35,6 @@ userRouter.post(
   admitPatient,
 );
 
-// userRouter.get("/polar-portal/:userId", requireAuth, getPolarPortalLink);
+userRouter.get("/polar-portal/:userId", requireAuth, getPolarPortalLink);
 
-// if :id route is first, it will catch all routes including /update/:id, so we need to put it after the /update/:id route
 export default userRouter;

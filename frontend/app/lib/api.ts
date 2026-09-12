@@ -216,9 +216,13 @@ export const getAllInvoices = async (data?: {
   page?: number;
   limit?: number;
 }): Promise<PaginatedResponse<invoice>> => {
-  const res = await fetch(`${API_URL}/invoices`, {
+  const query = new URLSearchParams({
+    page: (data?.page || 1).toString(),
+    limit: (data?.limit || 10).toString(),
+  }).toString();
+
+  const res = await fetch(`${API_URL}/invoices?${query}`, {
     credentials: "include",
-    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to fetch invoices");
   return res.json();
