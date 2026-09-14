@@ -106,7 +106,7 @@ export function RevenueChart() {
             tickLine={false}
             axisLine={false}
             tick={{ fill: "#94a3b8" }}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `₹${value}`}
           />
           <Tooltip
             cursor={{ fill: "rgba(0,0,0,0.02)" }}
@@ -115,7 +115,7 @@ export function RevenueChart() {
               border: "1px solid #e2e8f0",
               boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             }}
-            // formatter={(val: number) => [`$${val.toFixed(2)}`, "Revenue"]}
+            formatter={(val) => [`₹${Number(val ?? 0).toFixed(2)}`, "Revenue"]}
           />
           <Bar
             dataKey="total"

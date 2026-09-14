@@ -23,7 +23,7 @@ import {
   Receipt,
   CheckCircle2,
   ExternalLink,
-  DollarSign,
+  IndianRupee,
   Clock,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -122,7 +122,7 @@ const FinancialHistory = () => {
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
               <div className="p-2 bg-white/20 rounded-xl">
-                <DollarSign size={20} />
+                <IndianRupee size={20} />
               </div>
               <Badge className="bg-white/20 text-white border-none">
                 +12.5%
@@ -131,7 +131,7 @@ const FinancialHistory = () => {
             <div className="mt-4">
               <p className="text-blue-100 text-sm font-medium">Total Billed</p>
               <h3 className="text-2xl font-black mt-1">
-                $
+                ₹
                 {(
                   invoices.reduce(
                     (sum: number, inv: any) => sum + (inv.totalAmount || 0),
@@ -254,7 +254,7 @@ const FinancialHistory = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center font-black text-slate-900 dark:text-white">
-                        ${(inv.totalAmount / 100).toFixed(2)}
+                        ₹{(inv.totalAmount / 100).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-center">
                         {getStatusBadge(inv.status)}
