@@ -1,3 +1,4 @@
+import { getIO } from "../lib/socket";
 import Notification from "../models/notification";
 
 export const notifyUsers = async (
@@ -27,4 +28,6 @@ export const notifyUsers = async (
   });
 
   // 3. Emit a Socket event specifically to update their Bell Icon instantly!
+  getIO().emit(`new_notification_${doctorId}`);
+  getIO().emit(`new_notification_${nurseId}`);
 };
