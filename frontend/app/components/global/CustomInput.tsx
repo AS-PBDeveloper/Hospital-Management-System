@@ -6,7 +6,8 @@ import {
 } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { type ComponentProps, type ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { type ComponentProps, type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface CustomInputProps<T extends FieldValues> extends Omit<
@@ -30,6 +31,9 @@ export function CustomInput<T extends FieldValues>({
   className,
   ...props
 }: CustomInputProps<T>) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = props.type === "password";
+
   return (
     <Controller
       name={name}
@@ -55,11 +59,13 @@ export function CustomInput<T extends FieldValues>({
               disabled={disabled}
               {...field}
               {...props}
+              type={isPassword && showPassword ? "text" : props.type}
               className={cn(
                 // Base Layout
                 "w-full rounded-2xl py-6", // py-6 handles height better for this design
                 startIcon ? "pl-12" : "pl-4",
-                "pr-4 text-sm transition-all outline-none shadow-sm",
+                isPassword ? "pr-12" : "pr-4",
+                "text-sm transition-all outline-none shadow-sm",
 
                 // // Light Mode Styles
                 // "bg-slate-50 border-slate-100 text-slate-900 placeholder:text-slate-400",
@@ -79,6 +85,16 @@ export function CustomInput<T extends FieldValues>({
                 className,
               )}
             />
+            {isPassword && (
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((visible) => !visible)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-400 transition-colors hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-slate-500 dark:hover:text-slate-300"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            )}
           </div>
 
           {description && (
